@@ -1,0 +1,14 @@
+[package]
+name = "gplayer"
+version = "0.1.0"
+authors = ["betta-cyber <l21828604@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rodio = "0.10.0"
+reqwest = { version = "0.10.0" }
+tempfile = "3.1.0"
+tokio = { version = "0.2", features = ["macros"] }
+futures = "0.3.1"
