@@ -2,14 +2,16 @@ extern crate rodio;
 extern crate reqwest;
 extern crate tempfile;
 
+mod player;
+
 use std::io::prelude::*;
 use std::io::BufReader;
 use std::thread;
 use std::time::Duration;
 use futures::channel::mpsc;
 use tempfile::NamedTempFile;
+use std::env;
 
-use std::fs::File;
 
 enum PlayerCommand {
     Load(String),
@@ -21,6 +23,7 @@ enum PlayerCommand {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
     let device = rodio::default_output_device().unwrap();
     let sink = rodio::Sink::new(&device);
     let (tx, mut rx) = mpsc::unbounded::<PlayerCommand>();
@@ -55,8 +58,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     });
 
+    let args: Vec<String> = env::args().collect();
+    let url = &args[1];
 
-    let url = "http://mm1.doubanio.com/202001021709/513ecfaa7c3130c48e496711c0ea3aac/view/musicianmp3/mp3/x19543159.mp3";
+    // let url = "http://mr1.doubanio.com/993e6b86e35bb933e6d8bfedab660db7/0/fm/song/p1584951_64k.mp3";
     let mut res = reqwest::get(url).await?;
     println!("Status: {}", res.status());
     let mut flag = true;
