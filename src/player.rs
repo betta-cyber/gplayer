@@ -3,6 +3,8 @@ use futures::channel::oneshot;
 use futures::{future, Future};
 use std::sync::mpsc::{RecvError, RecvTimeoutError, TryRecvError};
 use futures::channel::mpsc;
+use std::sync::Arc;
+use tempfile::NamedTempFile;
 use super::sink::Sink;
 use super::fetch::fetch_data;
 
@@ -11,8 +13,7 @@ use std::time::Duration;
 
 #[derive(Debug)]
 pub enum PlayerCommand {
-    Load(String, bool, oneshot::Receiver<String>, oneshot::Sender<String>),
-    Loaded(String),
+    Load(String, bool, oneshot::Sender<String>),
     Play,
     Pause,
     Stop,
@@ -120,7 +121,7 @@ impl Player {
         start_playing: bool,
     ) {
         let (tx, rx) = oneshot::channel::<String>();
-        self.command(PlayerCommand::Load(url.to_owned(), start_playing, rx, tx));
+        self.command(PlayerCommand::Load(url.to_owned(), start_playing, tx));
     }
 
     pub fn play(&self) {
@@ -183,45 +184,31 @@ impl PlayerInternal {
             if let Some(cmd) = cmd {
                 self.handle_command(cmd);
             }
+            thread::sleep(Duration::from_secs(1));
         }
     }
 
     fn handle_command(&mut self, cmd: PlayerCommand) {
         debug!("command={:#?}", cmd);
         match cmd {
-            PlayerCommand::Load(url, start_playing, mut start_rx, start_tx) => {
+            PlayerCommand::Load(url, start_playing, start_tx) => {
                 if self.state.is_playing() {
                     // self.stop_sink_if_running();
                     debug!("is playing");
                 }
                 // new thread for download file
+                let mut buffer = NamedTempFile::new().unwrap();
+                let path = buffer.path().to_string_lossy().to_string();
+
                 thread::spawn(move || {
-                    fetch_data(&url, start_tx);
+                    fetch_data(&url, buffer, start_tx);
                 });
                 // load and autoplaying
                 if start_playing {
-                    loop {
-                        let a = start_rx.try_recv();
-                        match a {
-                            Ok(path) => {
-                                match path {
-                                    Some(path) => {
-                                        println!("run PlayerCommand loaded");
-                                        self.sink.append(&path);
-                                        break;
-                                    }
-                                    None => {}
-                                }
-                            }
-                            Err(_) => {}
-                        }
-                    }
+                    thread::sleep(Duration::from_secs(1));
+                    // let path = start_rx.try_recv().unwrap().unwrap();
+                    self.sink.append(&path);
                 }
-            }
-            PlayerCommand::Loaded(path) => {
-                // self.sink.append();
-            }
-            PlayerCommand::Play => {
                 // self.sink.append();
             }
             PlayerCommand::Pause => {

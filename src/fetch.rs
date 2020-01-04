@@ -1,19 +1,19 @@
 use std::io::prelude::*;
 // use std::time::Duration;
+// use super::player::PlayerCommand;
 use futures::channel::oneshot::Sender;
 use tempfile::NamedTempFile;
-use super::player::PlayerCommand;
-use std::fs::File;
+// use std::fs::File;
+// use std::sync::Arc;
 
 #[tokio::main]
-pub async fn fetch_data(url: &str, tx: Sender<String>) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn fetch_data(url: &str, buffer: NamedTempFile, tx: Sender<String>) -> Result<(), Box<dyn std::error::Error>> {
 
     let mut res = reqwest::get(url).await?;
     let mut flag = true;
-    let mut buffer = NamedTempFile::new()?;
-    let path = buffer.path().to_string_lossy().to_string();
-    send_msg(&path, tx);
-    println!("send msg");
+    let mut buffer = buffer;
+    // send_msg(&filepath, tx);
+    // println!("send msg");
 
     while let Some(chunk) = res.chunk().await? {
         // bytes

@@ -29,6 +29,6 @@ fn main() {
     player.load(&url, true);
     debug!("Done");
     loop {
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(11111));
     }
 }
