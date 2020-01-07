@@ -423,6 +423,7 @@ version = "0.1.0"
 dependencies = [
  "futures",
  "log",
+ "minimp3",
  "pretty_env_logger",
  "reqwest",
  "rodio",
