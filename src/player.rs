@@ -205,14 +205,20 @@ impl PlayerInternal {
                 });
                 // load and autoplaying
                 if start_playing {
-                    thread::sleep(Duration::from_secs(1));
+                    thread::sleep(Duration::from_millis(100));
                     // let path = start_rx.try_recv().unwrap().unwrap();
                     self.sink.append(&path);
                 }
                 // self.sink.append();
             }
             PlayerCommand::Pause => {
+                self.sink.pause();
+            }
+            PlayerCommand::Stop => {
                 self.sink.stop();
+            }
+            PlayerCommand::Play => {
+                self.sink.start();
             }
             _ => {}
 

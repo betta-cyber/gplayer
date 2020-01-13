@@ -9,6 +9,7 @@ pub trait Open {
 pub trait Sink {
     fn start(&mut self) -> io::Result<()>;
     fn stop(&mut self) -> io::Result<()>;
+    fn pause(&mut self) -> io::Result<()>;
     fn write(&mut self, data: &[i16]) -> io::Result<()>;
     fn append(&mut self, path: &str);
 }
@@ -58,14 +59,19 @@ impl Open for RodioSink {
 impl Sink for RodioSink {
     fn start(&mut self) -> io::Result<()> {
         // More similar to an "unpause" than "play". Doesn't undo "stop".
-        // self.rodio_sink.play();
+        self.rodio_sink.play();
         Ok(())
     }
 
     fn stop(&mut self) -> io::Result<()> {
         // This will immediately stop playback, but the sink is then unusable.
         // We just have to let the current buffer play till the end.
-        // self.rodio_sink.stop();
+        self.rodio_sink.stop();
+        Ok(())
+    }
+
+    fn pause(&mut self) -> io::Result<()> {
+        self.rodio_sink.pause();
         Ok(())
     }
 
@@ -90,6 +96,5 @@ impl Sink for RodioSink {
         ).unwrap();
 
         self.rodio_sink.append(source);
-        self.rodio_sink.sleep_until_end();
     }
 }

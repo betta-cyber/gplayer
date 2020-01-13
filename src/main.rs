@@ -11,6 +11,8 @@ extern crate minimp3;
 mod player;
 mod fetch;
 mod sink;
+mod range_set;
+mod fetch_data;
 
 use std::thread;
 use std::time::Duration;
@@ -60,7 +62,13 @@ fn main() {
     debug!("Playing...");
     player.load(&url, true);
     debug!("Done");
-    loop {
-        thread::sleep(Duration::from_secs(11111));
-    }
+    thread::sleep(Duration::from_secs(5));
+    player.pause();
+    println!("pause main");
+    thread::sleep(Duration::from_secs(5));
+    player.play();
+    println!("start main");
+    thread::sleep(Duration::from_secs(5));
+    player.seek(5);
+    thread::sleep(Duration::from_secs(11111));
 }
