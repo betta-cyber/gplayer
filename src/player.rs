@@ -205,7 +205,7 @@ impl PlayerInternal {
                 });
                 // load and autoplaying
                 if start_playing {
-                    thread::sleep(Duration::from_millis(100));
+                    thread::sleep(Duration::from_millis(1000));
                     // let path = start_rx.try_recv().unwrap().unwrap();
                     self.sink.append(&path);
                 }
